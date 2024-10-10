@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compatibility</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 45%;
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid black;
+        }
+        button {
+            background-color: #f0f0f0;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            position: relative;
+        }
+        #heart-container {
+            font-size: 150px;
+            width: 150px;
+            height: 150px;
+            position: relative;
+            margin-right: 60px;
+        }
+        #heart-bg, #heart-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #heart-fill {
+            clip-path: inset(100% 0 0 0);
+            transition: clip-path 2s ease-in-out;
+        }
+        #percentage {
+            font-size: 24px;
+            font-weight: bold;
+            position: absolute;
+            bottom: -75px;
+            left: calc(50% + 5px);
+            transform: translateX(-50%);
+        }
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 2px solid black;
+            padding: 20px;
+            text-align: center;
+            z-index: 100;
+        }
+        #popup button {
+            margin: 10px;
+        }
+        #hint {
+            color: #e0e0e0;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="initialContent">
+            <h1>Compatibility</h1>
+            <div class="input-container">
+                <input type="text" id="name1" placeholder="Enter name" oninput="checkInputs()">
+                <input type="text" id="name2" placeholder="Enter name" oninput="checkInputs()">
+            </div>
+            <button id="calculateBtn" onclick="initiateCalculation()" disabled>Calculate</button>
+        </div>
+        <div id="result-container" style="display: none;">
+            <div id="heart-container">
+                <div id="heart-bg">🤍</div>
+                <div id="heart-fill">❤️</div>
+            </div>
+            <div id="percentage"></div>
+        </div>
+    </div>
+    <div id="popup" style="display: none;">
+        <p>Are you sure?</p>
+        <button onclick="confirmCalculation()">Yes</button>
+        <button onclick="cancelCalculation()">No</button>
+        <div id="hint">hint: it's better w cj</div>
+    </div>
+
+    <script>
+        function checkInputs() {
+            const name1 = document.getElementById('name1').value.trim();
+            const name2 = document.getElementById('name2').value.trim();
+            const calculateBtn = document.getElementById('calculateBtn');
+            calculateBtn.disabled = name1 === '' || name2 === '';
+        }
+
+        function initiateCalculation() {
+            const name1 = document.getElementById('name1').value.toLowerCase();
+            const name2 = document.getElementById('name2').value.toLowerCase();
+
+            if ((name1 === 'leilah' && name2 !== 'cj') || (name2 === 'leilah' && name1 !== 'cj')) {
+                document.getElementById('popup').style.display = 'block';
+            } else {
+                calculateCompatibility();
+            }
+        }
+
+        function confirmCalculation() {
+            document.getElementById('popup').style.display = 'none';
+            calculateCompatibility();
+        }
+
+        function cancelCalculation() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        function calculateCompatibility() {
+            const name1 = document.getElementById('name1').value.toLowerCase();
+            const name2 = document.getElementById('name2').value.toLowerCase();
+            let percentage;
+
+            if ((name1 === 'leilah' && name2 === 'cj') || (name1 === 'cj' && name2 === 'leilah')) {
+                percentage = 100;
+            } else if (name1 === 'leilah' || name2 === 'leilah') {
+                percentage = Math.floor(Math.random() * 40);
+            } else {
+                percentage = Math.floor(Math.random() * 101);
+            }
+
+            document.getElementById('initialContent').style.display = 'none';
+            document.getElementById('result-container').style.display = 'flex';
+            
+            const heartFill = document.getElementById('heart-fill');
+            const percentageElement = document.getElementById('percentage');
+            
+            heartFill.style.clipPath = 'inset(100% 0 0 0)';
+            percentageElement.textContent = '0%';
+            
+            setTimeout(() => {
+                const fillPercentage = percentage === 100 ? 100 : Math.min(99, percentage);
+                heartFill.style.clipPath = `inset(${100 - fillPercentage}% 0 0 0)`;
+                animatePercentage(0, percentage, 2000);
+            }, 100);
+        }
+
+        function animatePercentage(start, end, duration) {
+            const percentageElement = document.getElementById('percentage');
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsedTime = currentTime - startTime;
+                if (elapsedTime > duration) {
+                    percentageElement.textContent = end + '%';
+                    return;
+                }
+                
+                const progress = elapsedTime / duration;
+                const currentPercentage = Math.round(start + (end - start) * progress);
+                percentageElement.textContent = currentPercentage + '%';
+                requestAnimationFrame(update);
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        // Initial check for inputs
+        checkInputs();
+    </script>
+</body>
+</html>
